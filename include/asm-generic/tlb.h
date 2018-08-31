@@ -256,22 +256,14 @@ struct mmu_gather {
 	unsigned int		cleared_puds : 1;
 	unsigned int		cleared_p4ds : 1;
 
-	/*
-	 * tracks VM_EXEC | VM_HUGETLB in tlb_start_vma
-	 */
-	unsigned int		vma_exec : 1;
-	unsigned int		vma_huge : 1;
-
 	unsigned int		batch_count;
 
-#ifndef CONFIG_HAVE_MMU_GATHER_NO_GATHER
 	struct mmu_gather_batch *active;
 	struct mmu_gather_batch	local;
 	struct page		*__pages[MMU_GATHER_BUNDLE];
 
 #ifdef CONFIG_HAVE_MMU_GATHER_PAGE_SIZE
 	unsigned int page_size;
-#endif
 #endif
 };
 
