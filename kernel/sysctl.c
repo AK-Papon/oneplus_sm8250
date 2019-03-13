@@ -847,6 +847,22 @@ static struct ctl_table kern_table[] = {
 		.extra2		= &one,
 	},
 #endif
+	{
+		.procname	= "sched_lib_name",
+		.data		= sched_lib_name,
+		.maxlen		= LIB_PATH_LENGTH,
+		.mode		= 0644,
+		.proc_handler	= proc_dostring,
+	},
+	{
+		.procname	= "sched_lib_mask_force",
+		.data		= &sched_lib_mask_force,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0644,
+		.proc_handler	= proc_douintvec_minmax,
+		.extra1		= &zero,
+		.extra2		= &two_hundred_fifty_five,
+	},
 #ifdef CONFIG_PROVE_LOCKING
 	{
 		.procname	= "prove_locking",
