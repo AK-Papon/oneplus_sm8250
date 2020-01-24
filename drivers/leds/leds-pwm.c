@@ -173,21 +173,18 @@ static int led_pwm_set(struct led_classdev *led_cdev,
 {
 	struct led_pwm_data *led_data =
 		container_of(led_cdev, struct led_pwm_data, cdev);
-	unsigned int max = led_data->cdev.max_brightness;
-	unsigned long long duty =  led_data->period;
+	unsigned int max = led_dat->cdev.max_brightness;
+	unsigned long long duty = led_dat->pwmstate.period;
 
 	duty *= brightness;
 	do_div(duty, max);
 
-	if (led_data->active_low)
-		duty = led_data->period - duty;
+	if (led_dat->active_low)
+		duty = led_dat->pwmstate.period - duty;
 
-	led_data->duty = duty;
-	led_data->blinking = false;
-
-	__led_pwm_set(led_data);
-
-	return 0;
+	led_dat->pwmstate.duty_cycle = duty;
+	led_dat->pwmstate.enabled = duty > 0;
+	return pwm_apply_state(led_dat->pwm, &led_dat->pwmstate);
 }
 
 static inline size_t sizeof_pwm_leds_priv(int num_leds)
@@ -206,7 +203,6 @@ static int led_pwm_add(struct device *dev, struct led_pwm_priv *priv,
 		       struct led_pwm *led, struct device_node *child)
 {
 	struct led_pwm_data *led_data = &priv->leds[priv->num_leds];
-	struct pwm_args pargs;
 	int ret;
 
 	led_data->active_low = led->active_low;
@@ -232,17 +228,10 @@ static int led_pwm_add(struct device *dev, struct led_pwm_priv *priv,
 	led_data->cdev.brightness_set_blocking = led_pwm_set;
 	led_data->cdev.blink_set = led_pwm_blink_set;
 
-	/*
-	 * FIXME: pwm_apply_args() should be removed when switching to the
-	 * atomic PWM API.
-	 */
-	pwm_apply_args(led_data->pwm);
+	pwm_init_state(led_data->pwm, &led_data->pwmstate);
 
-	pwm_get_args(led_data->pwm, &pargs);
-
-	led_data->period = pargs.period;
-	if (!led_data->period)
-		led_data->period = led->pwm_period_ns;
+	if (!led_data->pwmstate.period)
+		led_data->pwmstate.period = led->pwm_period_ns;
 
 	ret = led_classdev_register(dev, &led_data->cdev);
 	if (ret == 0) {
