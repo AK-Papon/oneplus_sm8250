@@ -136,5 +136,14 @@ all.config
 # fetched Android config fragments
 kernel/configs/android-*.cfg
 
-# Tech package directories
-techpack/
+# Ignore build script
+build.sh
+
+# Ignore out directory
+out/
+
+#
+#Ignoring Android.bp link file
+#
+Android.bp
+
