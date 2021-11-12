@@ -14,7 +14,6 @@
 #include <trace/events/dfc.h>
 #include <linux/ip.h>
 #include <linux/ipv6.h>
-#include <linux/alarmtimer.h>
 
 #define NLMSG_FLOW_ACTIVATE 1
 #define NLMSG_FLOW_DEACTIVATE 2
@@ -1057,7 +1056,6 @@ static LIST_HEAD(ps_list);
 
 struct rmnet_powersave_work {
 	struct delayed_work work;
-	struct alarm atimer;
 	void *port;
 	u64 old_rx_pkts;
 	u64 old_tx_pkts;
@@ -1142,16 +1140,6 @@ static void qmi_rmnet_work_restart(void *port)
 	rcu_read_unlock();
 }
 
-static enum alarmtimer_restart qmi_rmnet_work_alarm(struct alarm *atimer,
-						    ktime_t now)
-{
-	struct rmnet_powersave_work *real_work;
-
-	real_work = container_of(atimer, struct rmnet_powersave_work, atimer);
-	qmi_rmnet_work_restart(real_work->port);
-	return ALARMTIMER_NORESTART;
-}
-
 static void qmi_rmnet_check_stats(struct work_struct *work)
 {
 	struct rmnet_powersave_work *real_work;
@@ -1159,7 +1147,6 @@ static void qmi_rmnet_check_stats(struct work_struct *work)
 	u64 rxd, txd;
 	u64 rx, tx;
 	bool dl_msg_active;
-	bool use_alarm_timer = true;
 
 	real_work = container_of(to_delayed_work(work),
 				 struct rmnet_powersave_work, work);
@@ -1170,6 +1157,15 @@ static void qmi_rmnet_check_stats(struct work_struct *work)
 	qmi = (struct qmi_info *)rmnet_get_qmi_pt(real_work->port);
 	if (unlikely(!qmi))
 		return;
+
+	rmnet_get_packets(real_work->port, &rx, &tx);
+	rxd = rx - real_work->old_rx_pkts;
+	txd = tx - real_work->old_tx_pkts;
+	real_work->old_rx_pkts = rx;
+	real_work->old_tx_pkts = tx;
+
+	dl_msg_active = qmi->dl_msg_active;
+	qmi->dl_msg_active = false;
 
 	if (qmi->ps_enabled) {
 
@@ -1205,10 +1201,8 @@ static void qmi_rmnet_check_stats(struct work_struct *work)
 		 * (likely in RLF), no need to enter powersave
 		 */
 		if (!dl_msg_active &&
-		    !rmnet_all_flows_enabled(real_work->port)) {
-			use_alarm_timer = false;
+		    !rmnet_all_flows_enabled(real_work->port))
 			goto end;
-		}
 
 		/* Deregister to suppress QMI DFC and DL marker */
 		if (qmi_rmnet_set_powersave_mode(real_work->port, 1) < 0)
@@ -1232,14 +1226,82 @@ static void qmi_rmnet_check_stats(struct work_struct *work)
 	}
 end:
 	rcu_read_lock();
-	if (!rmnet_work_quit) {
-		if (use_alarm_timer)
-			alarm_start_relative(&real_work->atimer,
-					     PS_INTERVAL_KT);
-		else
-			queue_delayed_work(rmnet_ps_wq, &real_work->work,
-					   PS_INTERVAL);
+	if (!rmnet_work_quit)
+		queue_delayed_work(rmnet_ps_wq, &real_work->work,
+				   PS_INTERVAL);
+	rcu_read_unlock();
+}
+
+static void qmi_rmnet_check_stats_2(struct work_struct *work)
+{
+	struct rmnet_powersave_work *real_work;
+	struct qmi_info *qmi;
+	u64 rxd, txd;
+	u64 rx, tx;
+	u8 num_bearers;
+
+	real_work = container_of(to_delayed_work(work),
+				 struct rmnet_powersave_work, work);
+
+	if (unlikely(!real_work->port))
+		return;
+
+	qmi = (struct qmi_info *)rmnet_get_qmi_pt(real_work->port);
+	if (unlikely(!qmi))
+		return;
+
+	if (qmi->ps_enabled) {
+
+		/* Ready to accept grant */
+		qmi->ps_ignore_grant = false;
+
+		/* Out of powersave */
+		if (dfc_qmap_set_powersave(0, 0, NULL))
+			goto end;
+
+		qmi->ps_enabled = false;
+
+		if (rmnet_get_powersave_notif(real_work->port))
+			qmi_rmnet_ps_off_notify(real_work->port);
+
+		goto end;
 	}
+
+	rmnet_get_packets(real_work->port, &rx, &tx);
+	rxd = rx - real_work->old_rx_pkts;
+	txd = tx - real_work->old_tx_pkts;
+	real_work->old_rx_pkts = rx;
+	real_work->old_tx_pkts = tx;
+
+	if (!rxd && !txd) {
+		qmi->ps_ignore_grant = true;
+		qmi->ps_enabled = true;
+		clear_bit(PS_WORK_ACTIVE_BIT, &qmi->ps_work_active);
+
+		/* Let other CPU's see this update so that packets are
+		 * dropped, instead of further processing packets
+		 */
+		smp_mb();
+
+		num_bearers = sizeof(ps_bearer_id);
+		memset(ps_bearer_id, 0, sizeof(ps_bearer_id));
+		rmnet_prepare_ps_bearers(real_work->port, &num_bearers,
+					 ps_bearer_id);
+
+		/* Enter powersave */
+		dfc_qmap_set_powersave(1, num_bearers, ps_bearer_id);
+
+		if (rmnet_get_powersave_notif(real_work->port))
+			qmi_rmnet_ps_on_notify(real_work->port);
+
+		return;
+	}
+end:
+	rcu_read_lock();
+	if (!rmnet_work_quit)
+		queue_delayed_work(rmnet_ps_wq, &real_work->work,
+				   PS_INTERVAL);
+
 	rcu_read_unlock();
 }
 
@@ -1274,8 +1336,13 @@ void qmi_rmnet_work_init(void *port)
 		rmnet_ps_wq = NULL;
 		return;
 	}
-	INIT_DEFERRABLE_WORK(&rmnet_work->work, qmi_rmnet_check_stats);
-	alarm_init(&rmnet_work->atimer, ALARM_BOOTTIME, qmi_rmnet_work_alarm);
+
+	if (dfc_qmap && dfc_ps_ext)
+		INIT_DELAYED_WORK(&rmnet_work->work,
+				     qmi_rmnet_check_stats_2);
+	else
+		INIT_DELAYED_WORK(&rmnet_work->work, qmi_rmnet_check_stats);
+
 	rmnet_work->port = port;
 	rmnet_get_packets(rmnet_work->port, &rmnet_work->old_rx_pkts,
 			  &rmnet_work->old_tx_pkts);
@@ -1309,7 +1376,6 @@ void qmi_rmnet_work_exit(void *port)
 	synchronize_rcu();
 
 	rmnet_work_inited = false;
-	alarm_cancel(&rmnet_work->atimer);
 	cancel_delayed_work_sync(&rmnet_work->work);
 	destroy_workqueue(rmnet_ps_wq);
 	qmi_rmnet_work_set_active(port, 0);

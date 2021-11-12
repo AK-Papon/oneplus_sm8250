@@ -98,6 +98,7 @@ struct qmi_info {
 	bool ps_enabled;
 	bool dl_msg_active;
 	bool ps_ignore_grant;
+	int ps_ext;
 };
 
 enum data_ep_type_enum_v01 {
