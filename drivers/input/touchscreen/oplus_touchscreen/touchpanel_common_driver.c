@@ -532,25 +532,25 @@ static void tp_gesture_handle(struct touchpanel_data *ts)
 	        }
 	}        
 
-	TPD_INFO("detect %s gesture\n", gesture_info_temp.gesture_type == DouTap ? "double tap" :
-		 gesture_info_temp.gesture_type == UpVee ? "up vee" :
-		 gesture_info_temp.gesture_type == DownVee ? "down vee" :
-		 gesture_info_temp.gesture_type == LeftVee ? "(>)" :
-		 gesture_info_temp.gesture_type == RightVee ? "(<)" :
-		 gesture_info_temp.gesture_type == Circle ? "circle" :
-		 gesture_info_temp.gesture_type == DouSwip ? "(||)" :
-		 gesture_info_temp.gesture_type == Left2RightSwip ? "(-->)" :
-		 gesture_info_temp.gesture_type == Right2LeftSwip ? "(<--)" :
-		 gesture_info_temp.gesture_type == Up2DownSwip ? "up to down |" :
-		 gesture_info_temp.gesture_type == Down2UpSwip ? "down to up |" :
-		 gesture_info_temp.gesture_type == Mgestrue ? "(M)" :
-		 gesture_info_temp.gesture_type == SGESTRUE ? "(S)" :
-		 gesture_info_temp.gesture_type == Wgestrue ? "(W)" :
-		 gesture_info_temp.gesture_type == FingerprintDown ? "(fingerprintdown)" :
-		 gesture_info_temp.gesture_type == FingerprintUp ? "(fingerprintup)" :
-		 gesture_info_temp.gesture_type == SingleTap ? "single tap" :
-		 gesture_info_temp.gesture_type == PENDETECT ? "(pen detect)" :
-		 gesture_info_temp.gesture_type == Heart ? "heart" : "unknown");
+    TPD_INFO("detect %s gesture\n", gesture_info_temp.gesture_type == DouTap ? "double tap" :
+             gesture_info_temp.gesture_type == UpVee ? "up vee" :
+             gesture_info_temp.gesture_type == DownVee ? "down vee" :
+             gesture_info_temp.gesture_type == LeftVee ? "(>)" :
+             gesture_info_temp.gesture_type == RightVee ? "(<)" :
+             gesture_info_temp.gesture_type == Circle ? "circle" :
+             gesture_info_temp.gesture_type == DouSwip ? "(||)" :
+             gesture_info_temp.gesture_type == Left2RightSwip ? "(-->)" :
+             gesture_info_temp.gesture_type == Right2LeftSwip ? "(<--)" :
+             gesture_info_temp.gesture_type == Up2DownSwip ? "up to down |" :
+             gesture_info_temp.gesture_type == Down2UpSwip ? "down to up |" :
+             gesture_info_temp.gesture_type == Mgestrue ? "(M)" :
+             gesture_info_temp.gesture_type == SGESTRUE ? "(S)" :
+             gesture_info_temp.gesture_type == Wgestrue ? "(W)" :
+             gesture_info_temp.gesture_type == FingerprintDown ? "(fingerprintdown)" :
+             gesture_info_temp.gesture_type == FingerprintUp ? "(fingerprintup)" :
+             gesture_info_temp.gesture_type == SingleTap ? "single tap" :
+			 gesture_info_temp.gesture_type == PENDETECT ? "(pen detect)" :
+             gesture_info_temp.gesture_type == Heart ? "heart" : "unknown");
 #if GESTURE_COORD_GET
 	if (ts->ts_ops->get_gesture_coord) {
 		ts->ts_ops->get_gesture_coord(ts->chip_data, gesture_info_temp.gesture_type);
@@ -6335,11 +6335,11 @@ static int init_input_device(struct touchpanel_data *ts)
 #ifdef CONFIG_OPLUS_TP_APK
 		set_bit(KEY_POWER, ts->input_dev->keybit);
 #endif //end of CONFIG_OPLUS_TP_APK
-		set_bit(KEY_WAKEUP, ts->input_dev->keybit);
-		for (i = UpVee; i <= SGESTRUE; i++) {
-			set_bit(KEY_GESTURE_START + i, ts->input_dev->keybit);
-		}
-	}
+        set_bit(KEY_WAKEUP, ts->input_dev->keybit);
+        for (i = UpVee; i <= SGESTRUE; i++) {
+            set_bit(KEY_GESTURE_START + i, ts->input_dev->keybit);
+        }
+    }
 
 	ts->kpd_input_dev->name = TPD_DEVICE"_kpd";
 	set_bit(EV_KEY, ts->kpd_input_dev->evbit);
