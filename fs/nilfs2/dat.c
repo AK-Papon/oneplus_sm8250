@@ -45,7 +45,7 @@ static int nilfs_dat_prepare_entry(struct inode *dat,
 	ret = nilfs_palloc_get_entry_block(dat, req->pr_entry_nr,
 					   create, &req->pr_entry_bh);
 	if (unlikely(ret == -ENOENT)) {
-		nilfs_error(dat->i_sb,
+		nilfs_msg(dat->i_sb, KERN_ERR,
 			  "DAT doesn't have a block to manage vblocknr = %llu",
 			  (unsigned long long)req->pr_entry_nr);
 		/*
