@@ -755,7 +755,9 @@ int sde_crtc_config_fingerprint_dim_layer(struct drm_crtc_state *crtc_state, int
 
 bool is_skip_pcc(struct drm_crtc *crtc)
 {
-	if (sde_crtc_get_fingerprint_pressed(crtc->state))
+	if (OPLUS_DISPLAY_POWER_DOZE_SUSPEND == get_oplus_display_power_status() ||
+	    OPLUS_DISPLAY_POWER_DOZE == get_oplus_display_power_status() ||
+	    sde_crtc_get_fingerprint_pressed(crtc->state))
 		return true;
 
 	return false;
