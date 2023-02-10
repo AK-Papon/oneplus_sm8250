@@ -29,7 +29,6 @@ bool apollo_backlight_enable = false;
 struct drm_msm_pcc oplus_save_pcc;
 int oplus_dimlayer_hbm = 0;
 int oplus_dimlayer_hbm_saved = 0;
-int oplus_dimlayer_aod = 0;
 int oplus_aod_dim_alpha = CUST_A_NO;
 
 extern int oplus_underbrightness_alpha;
