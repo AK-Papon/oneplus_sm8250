@@ -1,28 +1,3 @@
-#code deprecated ... start (Todo : delete this code section)
-#ifdef OPLUS_FEATURE_POWERINFO_STANDBY
-config OPLUS_WAKELOCK_PROFILER
-bool "config oplus wakelock profiler"
-help
-    Select this config to enable oplus wakelock profiler
-#endif /* OPLUS_FEATURE_POWERINFO_STANDBY */
-
-#ifdef OPLUS_FEATURE_POWERINFO_STANDBY
-config OPLUS_POWER_QCOM
-bool "QCOM Config"
-help
-    Select this config to enable oplus wakelock profiler
-#endif /* OPLUS_FEATURE_POWERINFO_STANDBY */
-
-#ifdef OPLUS_FEATURE_POWERINFO_STANDBY
-config OPLUS_POWER_MTK
-bool "MTK Config"
-help
-    Select this config to enable oplus wakelock profiler
-#endif /* OPLUS_FEATURE_POWERINFO_STANDBY */
-#code deprecated ... end (Todo : delete this code section)
-
-
-
 #ifdef OPLUS_FEATURE_POWERINFO_STANDBY
 config OPLUS_WAKELOCK_PROFILER
 bool "config wakelock profiler"
