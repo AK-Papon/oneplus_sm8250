@@ -400,7 +400,39 @@ static void dump_confidential_status(struct seq_file *s)
     return;
 }
 
-static void update_manifest(struct proc_dir_entry *parent)
+static void dump_secure_type(struct seq_file *s)
+{
+#define OEM_SEC_BOOT_REG 0x780350
+
+    void __iomem *oem_config_base = NULL;
+    uint32_t secure_oem_config = 0;
+
+    oem_config_base = ioremap(OEM_SEC_BOOT_REG, 4);
+    if (oem_config_base) {
+        secure_oem_config = __raw_readl(oem_config_base);
+        iounmap(oem_config_base);
+    }
+
+    seq_printf(s, "%d", secure_oem_config);    
+}
+
+static void dump_secure_stage(struct seq_file *s)
+{
+#define OEM_SEC_ENABLE_ANTIROLLBACK_REG 0x78019c
+
+    void __iomem *oem_config_base = NULL;
+    uint32_t secure_oem_config = 0;
+
+    oem_config_base = ioremap(OEM_SEC_ENABLE_ANTIROLLBACK_REG, 4);
+    if (oem_config_base) {
+        secure_oem_config = __raw_readl(oem_config_base);
+        iounmap(oem_config_base);
+    }
+
+    seq_printf(s, "%d", secure_oem_config);
+}
+
+static void __init update_manifest(struct proc_dir_entry *parent)
 {
     static const char* manifest_src[2] = {
         "/vendor/odm/etc/vintf/manifest_ssss.xml",
@@ -429,7 +461,7 @@ static void update_manifest(struct proc_dir_entry *parent)
     set_fs(fs);
 }
 
-static void update_telephony_manifest(struct proc_dir_entry *parent)
+static void __init update_telephony_manifest(struct proc_dir_entry *parent)
 {
     static const char* manifest_src[2] = {
         "/vendor/odm/etc/vintf/telephony_manifest_ssss.xml",
