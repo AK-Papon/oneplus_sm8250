@@ -138,13 +138,3 @@ obj-$(CONFIG_VIRTUAL_RESERVE_MEMORY) += reserve_area.o
 #if defined(OPLUS_FEATURE_MULTI_FREEAREA)
 obj-$(CONFIG_PHYSICAL_ANTI_FRAGMENTATION) += multi_freearea.o
 #endif
-
-#if defined(OPLUS_FEATURE_MEMLEAK_DETECT)
-ifeq ($(OPLUS_FEATURE_MEMLEAK_DETECT), yes)
-obj-$(CONFIG_DUMP_TASKS_MEM) += task_mem/
-endif
-#endif /*defined(OPLUS_FEATURE_MEMLEAK_DETECT)
-
-obj-$(CONFIG_MAPPED_PROTECT) += mapped_protect.o
-obj-$(CONFIG_SHRINK_LRU_TRYLOCK) += reclaim_lessdelay.o
-obj-$(CONFIG_KSHRINK_SLABD) += kshrink_slabd.o
