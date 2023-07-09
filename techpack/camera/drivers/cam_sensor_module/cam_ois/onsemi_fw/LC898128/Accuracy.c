@@ -38,7 +38,7 @@ extern UINT_8	FlashMultiRead( UINT_8 , UINT_32 , UINT_32 * , UINT_8 );
 #define		ACCURACY	0.015F						// Accuracy  0.75deg(100um)/50 = 2um
 
 // Parameter define
-#define		DEGSTEP		3							// Degree of one step (3Åã)
+#define		DEGSTEP		3							// Degree of one step (3ÔøΩÔøΩ)
 #define		WAIT_MSEC	10							// Each step wait time(msec)
 #define		LOOPTIME	3							// Read times at each step
 
@@ -46,7 +46,7 @@ extern UINT_8	FlashMultiRead( UINT_8 , UINT_32 , UINT_32 * , UINT_8 );
 #define		LPGSET		1.40						// 1.40(+3dB); 0.158(+4dB); 0.177(+5dB)
 
 // Constants
-#define		PI			3.14159						// ÉŒ
+#define		PI			3.14159						// ÔøΩÔøΩ
 #define		LMTDEG		0.75F						// Limit degree by LGYROLMT
 
 #define		HallX_hs			0x81F8
@@ -144,7 +144,7 @@ unsigned short Accuracy(float ACCURACY, unsigned short RADIUS, unsigned short DE
 	RamRead32A(HallFilterCoeffX_hxgoutg, &xGoutG);
 	RamRead32A(HallFilterCoeffY_hygoutg, &yGoutG);
 
-	// Calculate Radius (LIMIT_RANGE) /* ïsñæ */
+	// Calculate Radius (LIMIT_RANGE) /* ÔøΩsÔøΩÔøΩ */
 //	xRadius = ANGLE_LIMIT * fabsf(fix2float(xGyrogain)) * fabsf(fix2float(xGLenz)) * 8 * fabsf(fix2float(xGoutG));
 //	yRadius = ANGLE_LIMIT * fabsf(fix2float(yGyrogain)) * fabsf(fix2float(yGLenz)) * 8 * fabsf(fix2float(yGoutG));
 	xRadius = ANGLE_LIMIT * fabsf(fix2float(xGyrogain)) * fabsf(fix2float(xGLenz)) * (1 << (unsigned char)( xG2x4xb >> 8 )) * fabsf(fix2float(xGoutG));
@@ -373,7 +373,7 @@ unsigned short AccuracyH(float flACCURACY, unsigned short RADIUS, unsigned short
 	RamRead32A(HallFilterCoeffX_hxgoutg, &xGoutG);
 	RamRead32A(HallFilterCoeffY_hygoutg, &yGoutG);
 
-	// Calculate Radius (LIMIT_RANGE) /* ïsñæ */
+	// Calculate Radius (LIMIT_RANGE) /* ÔøΩsÔøΩÔøΩ */
 //	xRadius = ANGLE_LIMIT * fabsf(fix2float(xGyrogain)) * fabsf(fix2float(xGLenz)) * 8 * fabsf(fix2float(xGoutG));
 //	yRadius = ANGLE_LIMIT * fabsf(fix2float(yGyrogain)) * fabsf(fix2float(yGLenz)) * 8 * fabsf(fix2float(yGoutG));
 	xRadius = ANGLE_LIMIT * fabsf(fix2float(xGyrogain)) * fabsf(fix2float(xGLenz)) * (1 << (unsigned char)( xG2x4xb >> 8 )) * fabsf(fix2float(xGoutG));
@@ -502,7 +502,7 @@ unsigned short AccuracyG(float flACCURACY, unsigned short RADIUS, unsigned short
 	xShiftRG = 1 << ((xShiftRG & 0x0000FF00) >> 8);
     yShiftRG = 1 << ((yShiftRG & 0x0000FF00) >> 8);
 	
-	// Calculate Radius (LIMIT_RANGE) /* ïsñæ */
+	// Calculate Radius (LIMIT_RANGE) /* ÔøΩsÔøΩÔøΩ */
 	xRadius = fabsf(fix2float(xGyroLimit)) * fabsf(fix2float(xGyrogain)) * fabsf(fix2float(xGLenz)) * xShiftRG ;
 	yRadius = fabsf(fix2float(yGyroLimit)) * fabsf(fix2float(yGyrogain)) * fabsf(fix2float(yGLenz)) * yShiftRG ;
 
@@ -622,7 +622,7 @@ UINT_16 AccuracyL(float flACCURACY, UINT_16 RADIUS, UINT_16 usDEGSTEP, UINT_16 W
     float xRadius, yRadius;
 	UINT_32		uixpxl,uiypxl;
 	INT_32		sixstp,siystp;
-	UINT_32		linbuf[8];	/* pos1Å`pos7, step */
+	UINT_32		linbuf[8];	/* pos1ÔøΩ`pos7, step */
 	UINT_32		calibdata;
 	UINT_8		ans = 0;
 
@@ -771,7 +771,7 @@ unsigned short AccuracyS(float flACCURACY, unsigned short RADIUS, unsigned short
 	xShiftRG = 1 << ((xShiftRG & 0x0000FF00) >> 8);
     yShiftRG = 1 << ((yShiftRG & 0x0000FF00) >> 8);
 	
-	// Calculate Radius (LIMIT_RANGE) /* ïsñæ */
+	// Calculate Radius (LIMIT_RANGE) /* ÔøΩsÔøΩÔøΩ */
 	xRadius = fabsf(fix2float(xGyroLimit)) * fabsf(fix2float(xGyrogain)) * fabsf(fix2float(xGLenz)) * xShiftRG ;
 	yRadius = fabsf(fix2float(yGyroLimit)) * fabsf(fix2float(yGyrogain)) * fabsf(fix2float(yGLenz)) * yShiftRG ;
 
@@ -900,7 +900,7 @@ unsigned char SMA_Sensitivity( unsigned short LIMIT_RANGE_SMA, unsigned short RA
 	RamRead32A(0x8894, &xGLenz);
 	RamRead32A(0x88C8, &yGLenz);
 
-	// Calculate Radius (LIMIT_RANGE) /* ïsñæ */
+	// Calculate Radius (LIMIT_RANGE) /* ÔøΩsÔøΩÔøΩ */
 	xRadius = ANGLE_LIMIT_SMA * fabsf(fix2float(xGyrogain)) * fabsf(fix2float(xGLenz)) * 1 ;
 	yRadius = ANGLE_LIMIT_SMA * fabsf(fix2float(yGyrogain)) * fabsf(fix2float(yGLenz)) * 1 ;
 

@@ -50,7 +50,7 @@ UINT_8 FlashUpload128( UINT_8 ModuleVendor, UINT_8 ActVer, UINT_8 MasterSlave, U
 	do {
 		if( (ptr->Index == ( ((UINT_16)ModuleVendor<<8) + ActVer)) && (ptr->FWType == FWType) && (ptr->MasterSlave == MasterSlave)) {
 
-			// UploadFile‚ª64Byte‚Ý‚ÉPadding‚³‚ê‚Ä‚¢‚È‚¢‚È‚ç‚ÎAErrorB
+			// UploadFileï¿½ï¿½64Byteï¿½ï¿½ï¿½Ý‚ï¿½Paddingï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½È‚ï¿½ï¿½È‚ï¿½ÎAErrorï¿½B
 			if( ( ptr->SizeFromCode % 64 ) != 0 )	return (0xF1) ;
 
             if(!RamRead32A(0x8000, &data)) {
