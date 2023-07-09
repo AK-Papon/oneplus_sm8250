@@ -21,10 +21,10 @@
 #include <linux/pmic-voter.h>
 
 #ifdef OPLUS_FEATURE_CHG_BASIC
-#include <../drivers/power/supply/qcom/smb5-reg.h>
-#include <../drivers/power/supply/qcom/schgm-flash.h>
-#include <../drivers/power/supply/qcom/battery.h>
-#include <../drivers/power/supply/qcom/step-chg-jeita.h>
+#include "../../../../kernel/msm-4.19/drivers/power/supply/qcom/smb5-reg.h"
+#include "../../../../kernel/msm-4.19/drivers/power/supply/qcom/schgm-flash.h"
+#include "../../../../kernel/msm-4.19/drivers/power/supply/qcom/battery.h"
+#include "../../../../kernel/msm-4.19/drivers/power/supply/qcom/step-chg-jeita.h"
 #include "../voocphy/oplus_voocphy.h"
 #ifdef OPLUS_CUSTOM_OP_DEF
 #include <../drivers/power/supply/qcom/storm-watch.h>
@@ -11394,7 +11394,7 @@ bool oplus_chg_check_pd_svooc_adapater(void)
 }
 EXPORT_SYMBOL(oplus_chg_check_pd_svooc_adapater);
 
-void oplus_set_typec_sinkonly(void)
+void oplus_set_typec_sinkonly()
 {
 	int rc;
 	struct smb_charger *chg = NULL;
@@ -16707,7 +16707,7 @@ void oplus_set_flash_screen_ctrl_by_pcb_version(struct oplus_chg_chip *chip)
 }
 #endif
 extern int oplus_pdo_select(int vbus_mv, int ibus_ma);
-int oplus_chg_set_pd_config(void)
+int oplus_chg_set_pd_config()
 {
 	int ret = 0;
 	struct oplus_chg_chip *chip = g_oplus_chip;
@@ -16800,7 +16800,7 @@ int oplus_chg_enable_qc_detect(void)
 	return ret;
 }
 
-int oplus_chg_set_qc_config(void)
+int oplus_chg_set_qc_config()
 {
 	int ret = 0;
 	struct smb_charger *chg = NULL;
@@ -17165,7 +17165,7 @@ static int smb5_probe(struct platform_device *pdev)
 	struct power_supply *main_psy = NULL;
 	struct power_supply *bms_psy = NULL;
 	union power_supply_propval pval = {0, };
-	static int reporting_not_ready_count = 0;
+	static reporting_not_ready_count = 0;
 #endif
 	struct smb5 *chip;
 	struct smb_charger *chg;

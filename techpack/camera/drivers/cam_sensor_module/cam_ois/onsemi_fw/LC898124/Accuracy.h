@@ -15,11 +15,7 @@
 
 // Constants
 #define		PI			3.14159		// ��
-
-
-typedef struct tag_Dual_Axis
 {
-	float xpos;
 	float xhall;
 	float ypos;
 	float yhall;

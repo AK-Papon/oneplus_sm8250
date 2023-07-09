@@ -25,10 +25,6 @@ typedef enum {
 	EXCEP_IRQ,
 } tp_excep_type;
 
-static inline
-int tp_exception_report(void *tp_exception_data, tp_excep_type excep_tpye, void *summary, unsigned int summary_size)
-{
-	return 0;
-}
+int tp_exception_report(void *tp_exception_data, tp_excep_type excep_tpye, void *summary, unsigned int summary_size);
 
 #endif /*_TOUCHPANEL_EXCEPTION_*/
