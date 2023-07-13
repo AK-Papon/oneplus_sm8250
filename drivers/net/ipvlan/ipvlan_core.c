@@ -484,16 +484,11 @@ ipvlan_route_v6_outbound(struct net_device *dev, struct sk_buff *skb)
 		return err;
 	}
 	skb_dst_set(skb, dst);
-	return 0;
-}
 
-static int ipvlan_process_v6_outbound(struct sk_buff *skb)
-{
-	struct net_device *dev = skb->dev;
-	int err, ret = NET_XMIT_DROP;
+	memset(IP6CB(skb), 0, sizeof(*IP6CB(skb)));
 
-	err = ipvlan_route_v6_outbound(dev, skb);
-	if (unlikely(err)) {
+	err = ip6_local_out(net, skb->sk, skb);
+	if (unlikely(net_xmit_eval(err)))
 		dev->stats.tx_errors++;
 		kfree_skb(skb);
 		return err;

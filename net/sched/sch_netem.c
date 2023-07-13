@@ -937,18 +937,6 @@ static int netem_change(struct Qdisc *sch, struct nlattr *opt,
 	if (ret < 0)
 		return ret;
 
-	if (tb[TCA_NETEM_DELAY_DIST]) {
-		ret = get_dist_table(&delay_dist, tb[TCA_NETEM_DELAY_DIST]);
-		if (ret)
-			goto table_free;
-	}
-
-	if (tb[TCA_NETEM_SLOT_DIST]) {
-		ret = get_dist_table(&slot_dist, tb[TCA_NETEM_SLOT_DIST]);
-		if (ret)
-			goto table_free;
-	}
-
 	sch_tree_lock(sch);
 	/* backup q->clg and q->loss_model */
 	old_clg = q->clg;
@@ -958,7 +946,6 @@ static int netem_change(struct Qdisc *sch, struct nlattr *opt,
 		ret = get_loss_clg(q, tb[TCA_NETEM_LOSS]);
 		if (ret) {
 			q->loss_model = old_loss_model;
-			q->clg = old_clg;
 			goto unlock;
 		}
 	} else {
@@ -1018,11 +1005,17 @@ static int netem_change(struct Qdisc *sch, struct nlattr *opt,
 
 unlock:
 	sch_tree_unlock(sch);
-
-table_free:
-	dist_free(delay_dist);
-	dist_free(slot_dist);
 	return ret;
+
+get_table_failure:
+	/* recover clg and loss_model, in case of
+	 * q->clg and q->loss_model were modified
+	 * in get_loss_clg()
+	 */
+	q->clg = old_clg;
+	q->loss_model = old_loss_model;
+
+	goto unlock;
 }
 
 static int netem_init(struct Qdisc *sch, struct nlattr *opt,

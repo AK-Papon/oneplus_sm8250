@@ -751,7 +751,16 @@ static int dvb_dmx_swfilter_section_one_packet(struct dvb_demux_feed *feed,
 	p = 188 - count;	/* payload start */
 
 	cc = buf[3] & 0x0f;
-	ccok = ((feed->cc + 1) & 0x0f) == cc;
+	if (feed->first_cc)
+		ccok = 1;
+	else
+		ccok = ((feed->cc + 1) & 0x0f) == cc;
+
+	/* discard TS packets holding sections with TEI bit set */
+	if (buf[1] & 0x80)
+		return -EINVAL;
+
+	feed->first_cc = 0;
 
 	if (buf[3] & 0x20) {
 		/* adaption field present, check for discontinuity_indicator */
