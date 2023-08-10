@@ -495,6 +495,40 @@ static void cnss_release_antenna_sharing(struct cnss_plat_data *plat_priv)
 		coex_antenna_switch_to_mdm_send_sync_msg(plat_priv);
 }
 
+#define CNSS_DMS_QMI_CONNECTION_WAIT_MS 50
+#define CNSS_DMS_QMI_CONNECTION_WAIT_RETRY 200
+static int cnss_setup_dms_mac(struct cnss_plat_data *plat_priv)
+{
+	u32 i;
+	int ret = 0;
+
+	/* DTSI property use-nv-mac is used to force DMS MAC address for WLAN.
+	 * Thus assert on failure to get MAC from DMS even after retries
+	 */
+	if ((get_boot_mode() != MSM_BOOT_MODE__WLAN) && plat_priv->use_nv_mac) {
+		for (i = 0; i < CNSS_DMS_QMI_CONNECTION_WAIT_RETRY; i++) {
+			if (plat_priv->dms.mac_valid)
+				break;
+
+			ret = cnss_qmi_get_dms_mac(plat_priv);
+			if (ret == 0)
+				break;
+			msleep(CNSS_DMS_QMI_CONNECTION_WAIT_MS);
+		}
+		if (!plat_priv->dms.mac_valid) {
+			cnss_pr_err("Unable to get MAC from DMS\n");
+			CNSS_ASSERT(0);
+			return -EINVAL;
+		}
+	}
+	if (plat_priv->dms.mac_valid)
+		ret =
+		cnss_wlfw_wlan_mac_req_send_sync(plat_priv, plat_priv->dms.mac,
+						 ARRAY_SIZE(plat_priv->dms.mac));
+
+	return ret;
+}
+
 static int cnss_fw_ready_hdlr(struct cnss_plat_data *plat_priv)
 {
 	int ret = 0;
