@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: GPL-2.0-only
+config SENSORS_SSC
+	bool "Enable Sensors Driver Support for SSC"
+	help
+	  Add support for sensors SSC driver.
+	  This driver is used for exercising sensors use case,
+	  time syncing with ADSP clock.
+
+config SENSORS_SIMULATED_HALL
+	bool "Enable SIMULATED_HALL Driver"
+	help
+	  Add support for SIMULATED HALL SENSOR.
