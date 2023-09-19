@@ -759,6 +759,10 @@ asmlinkage __visible void __init start_kernel(void)
 	taskstats_init_early();
 	delayacct_init();
 
+#ifdef OPLUS_FEATURE_PHOENIX
+	if(phx_set_boot_stage)
+		phx_set_boot_stage(KERNEL_DELAYACCT_INIT_DONE);
+#endif //OPLUS_FEATURE_PHOENIX
 
 	acpi_subsystem_init();
 	arch_post_acpi_subsys_init();
