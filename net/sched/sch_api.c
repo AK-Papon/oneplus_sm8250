@@ -1148,7 +1148,12 @@ static struct Qdisc *qdisc_create(struct net_device *dev,
 	sch->parent = parent;
 
 	if (handle == TC_H_INGRESS) {
-		sch->flags |= TCQ_F_INGRESS;
+		if (!(sch->flags & TCQ_F_INGRESS)) {
+			NL_SET_ERR_MSG(extack,
+				       "Specified parent ID is reserved for ingress and clsact Qdiscs");
+			err = -EINVAL;
+			goto err_out3;
+		}
 		handle = TC_H_MAKE(TC_H_INGRESS, 0);
 		lockdep_set_class(qdisc_lock(sch), &qdisc_rx_lock);
 	} else {
@@ -1453,40 +1458,6 @@ static bool req_change(struct nlmsghdr *n)
 }
 
 /*
- * enable/disable flow on qdisc.
- */
-int
-tc_qdisc_flow_control(struct net_device *dev, u32 tcm_handle, int enable_flow)
-{
-	struct Qdisc *q;
-	int qdisc_len = 0;
-	struct __qdisc_change_req {
-		struct nlattr attr;
-		struct tc_prio_qopt data;
-	} req =	{
-		.attr = {sizeof(struct __qdisc_change_req), TCA_OPTIONS},
-		.data = {3, {1, 2, 2, 2, 1, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1}, 1}
-		};
-
-	/* override flow bit */
-	req.data.enable_flow = enable_flow;
-
-	/* look up using tcm handle */
-	q = qdisc_lookup(dev, tcm_handle);
-
-	/* call registered change function */
-	if (likely(q && q->ops)) {
-		if (likely(q->ops->change)) {
-			qdisc_len = q->q.qlen;
-			if (q->ops->change(q, &req.attr, NULL))
-				pr_err("%s(): qdisc change failed\n", __func__);
-		}
-	}
-	return qdisc_len;
-}
-EXPORT_SYMBOL(tc_qdisc_flow_control);
-
-/*
  * Create/change qdisc.
  */
 static int tc_modify_qdisc(struct sk_buff *skb, struct nlmsghdr *n,
@@ -1561,10 +1532,19 @@ replay:
 					NL_SET_ERR_MSG(extack, "Invalid qdisc name");
 					return -EINVAL;
 				}
+				if (q->flags & TCQ_F_INGRESS) {
+					NL_SET_ERR_MSG(extack,
+						       "Cannot regraft ingress or clsact Qdiscs");
+					return -EINVAL;
+				}
 				if (q == p ||
 				    (p && check_loop(q, p, 0))) {
 					NL_SET_ERR_MSG(extack, "Qdisc parent/child loop detected");
 					return -ELOOP;
+				}
+				if (clid == TC_H_INGRESS) {
+					NL_SET_ERR_MSG(extack, "Ingress cannot graft directly");
+					return -EINVAL;
 				}
 				qdisc_refcount_inc(q);
 				goto graft;
