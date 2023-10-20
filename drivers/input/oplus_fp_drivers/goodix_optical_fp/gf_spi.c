@@ -325,14 +325,14 @@ static inline void irq_cleanup(struct gf_dev *gf_dev)
     free_irq(gf_dev->irq, gf_dev);//need modify
 }
 
-static inline void gf_auto_send_touchdown(void)
+static void gf_auto_send_touchdown(void)
 {
     struct fp_underscreen_info tp_info;
     tp_info.touch_state = 1;
     gf_opticalfp_irq_handler(&tp_info);
 }
 
-static inline void gf_auto_send_touchup(void)
+static void gf_auto_send_touchup(void)
 {
     struct fp_underscreen_info tp_info;
     tp_info.touch_state = 0;
