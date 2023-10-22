@@ -538,7 +538,8 @@ int msm_audio_ion_free(struct dma_buf *dma_buf)
 	if (ret) {
              mutex_unlock(&(msm_audio_ion_data.list_mutex));
 		return ret;
-
+	}
+	
 	msm_audio_dma_buf_unmap(dma_buf);
 	mutex_unlock(&(msm_audio_ion_data.list_mutex));
 
