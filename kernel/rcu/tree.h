@@ -266,6 +266,7 @@ struct rcu_data {
 	short rcu_ofl_gp_flags;		/* ->gp_flags at last offline. */
 	unsigned long rcu_onl_gp_seq;	/* ->gp_seq at last online. */
 	short rcu_onl_gp_flags;		/* ->gp_flags at last online. */
+	long lazy_len; /* Length of buffered lazy callbacks. */
 
 	int cpu;
 	struct rcu_state *rsp;
@@ -273,7 +274,9 @@ struct rcu_data {
 
 /* Values for nocb_defer_wakeup field in struct rcu_data. */
 #define RCU_NOCB_WAKE_NOT	0
-#define RCU_NOCB_WAKE		1
+#define RCU_NOCB_WAKE_BYPASS 1
+#define RCU_NOCB_WAKE		2
+#define RCU_NOCB_WAKE_LAZY	2
 #define RCU_NOCB_WAKE_FORCE	2
 
 #define RCU_JIFFIES_TILL_FORCE_QS (1 + (HZ > 250) + (HZ > 500))
