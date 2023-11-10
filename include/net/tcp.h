@@ -369,8 +369,7 @@ extern int tcp_proc_delayed_ack_control(struct ctl_table *table, int write,
 				void __user *buffer, size_t *length,
 				loff_t *ppos);
 
-static inline void tcp_dec_quickack_mode(struct sock *sk,
-					 const unsigned int pkts)
+static inline void tcp_dec_quickack_mode(struct sock *sk)
 {
 	struct inet_connection_sock *icsk = inet_csk(sk);
 

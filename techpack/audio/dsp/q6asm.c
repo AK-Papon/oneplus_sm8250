@@ -2412,7 +2412,7 @@ static int32_t q6asm_callback(struct apr_client_data *data, void *priv)
 			return -EINVAL;
 		}
 		q6asm_process_mtmx_get_param_rsp(ac,
-		(struct asm_mtmx_strtr_get_params_cmdrsp *) payload);
+			(struct asm_mtmx_strtr_get_params_cmdrsp *) payload);
 		break;
 	case ASM_STREAM_PP_EVENT:
 	case ASM_STREAM_CMD_ENCDEC_EVENTS:
