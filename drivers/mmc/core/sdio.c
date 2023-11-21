@@ -1044,7 +1044,11 @@ static int mmc_sdio_resume(struct mmc_host *host)
 	mmc_claim_host(host);
 	mmc_log_string(host, "Enter\n");
 
-	/* Restore power if needed */
+	/*
+	 * Restore power and reinitialize the card when needed. Note that a
+	 * removable card is checked from a detect work later on in the resume
+	 * process.
+	 */
 	if (!mmc_card_keep_power(host)) {
 		mmc_power_up(host, host->card->ocr);
 		/*
