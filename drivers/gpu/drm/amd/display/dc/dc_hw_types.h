@@ -357,7 +357,7 @@ union dc_tiling_info {
 	} gfx8;
 
 	struct {
-		unsigned int num_pipes;
+		unsigned long long num_pipes;
 		unsigned int num_banks;
 		unsigned int pipe_interleave;
 		unsigned int num_shader_engines;
