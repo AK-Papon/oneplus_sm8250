@@ -18904,7 +18904,6 @@ static int wlan_hdd_cfg80211_connect_start(struct hdd_adapter *adapter,
 					  &roam_profile->ch_params);
 		}
 
-
 		if (wlan_hdd_cfg80211_check_pmf_valid(roam_profile)) {
 			status = -EINVAL;
 			goto conn_failure;
@@ -21274,7 +21273,6 @@ static int __wlan_hdd_cfg80211_connect(struct wiphy *wiphy,
 		ch_freq = req->channel->center_freq;
 	else
 		ch_freq = 0;
-
 
 	wlan_hdd_check_ht20_ht40_ind(hdd_ctx, adapter, req);
 
