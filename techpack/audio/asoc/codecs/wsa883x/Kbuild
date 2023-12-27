@@ -22,6 +22,10 @@ ifeq ($(KERNEL_BUILD), 0)
 		include $(AUDIO_ROOT)/config/litoauto.conf
 		INCS    +=  -include $(AUDIO_ROOT)/config/litoautoconf.h
 	endif
+        ifeq ($(CONFIG_ARCH_KONA), y)
+                include $(AUDIO_ROOT)/config/konaauto.conf
+                INCS    +=  -include $(AUDIO_ROOT)/config/konaautoconf.h
+        endif
 endif
 
 # As per target team, build is done as follows:
@@ -101,6 +105,3 @@ endif
 # Module information used by KBuild framework
 obj-$(CONFIG_SND_SOC_WSA883X) += wsa883x_dlkm.o
 wsa883x_dlkm-y := $(WSA883X_OBJS)
-
-# inject some build related information
-DEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"

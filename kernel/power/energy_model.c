@@ -140,8 +140,13 @@ static struct em_perf_domain *em_create_pd(cpumask_t *span, int nr_states,
 
 		table[i].cost = div64_u64(fmax * power_res,
 					  table[i].frequency);
+		if (i > 0 && (table[i].cost < table[i - 1].cost) &&
+				(table[i].power > table[i - 1].power)) {
+			table[i].cost = table[i - 1].cost;
+		}
+
 		if (table[i].cost >= prev_cost) {
-			pr_warn("pd%d: EM: OPP:%lu is inefficient\n",
+			pr_debug("pd%d: EM: OPP:%lu is inefficient\n",
 				cpu, table[i].frequency);
 		} else {
 			prev_cost = table[i].cost;

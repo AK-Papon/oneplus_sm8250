@@ -4358,11 +4358,9 @@ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
 		se->vruntime = vruntime;
 	else
 		se->vruntime = max_vruntime(se->vruntime, vruntime);
-
 #ifdef OPLUS_FEATURE_SCHED_ASSIST
-        place_entity_adjust_ux_task(cfs_rq, se, initial);
+	place_entity_adjust_ux_task(cfs_rq, se, initial);
 #endif
-
 }
 
 static void check_enqueue_throttle(struct cfs_rq *cfs_rq);

@@ -1471,8 +1471,10 @@ static int ncm_bind(struct usb_configuration *c, struct usb_function *f)
 		gether_set_gadget(ncm_opts->net, cdev->gadget);
 		status = gether_register_netdev(ncm_opts->net);
 		mutex_unlock(&ncm_opts->lock);
-		if (status)
-			goto fail;
+		if (status) {
+			free_netdev(ncm_opts->net);
+			goto error;
+		}
 		ncm_opts->bound = true;
 	}
 
@@ -1491,7 +1493,7 @@ static int ncm_bind(struct usb_configuration *c, struct usb_function *f)
 				 ARRAY_SIZE(ncm_string_defs));
 	if (IS_ERR(us)) {
 		status = PTR_ERR(us);
-		goto fail;
+		goto netdev_cleanup;
 	}
 	ncm_control_intf.iInterface = us[STRING_CTRL_IDX].id;
 	ncm_data_nop_intf.iInterface = us[STRING_DATA_IDX].id;
@@ -1698,8 +1700,6 @@ static void ncm_free_inst(struct usb_function_instance *f)
 	opts = container_of(f, struct f_ncm_opts, func_inst);
 	if (opts->bound)
 		gether_cleanup(netdev_priv(opts->net));
-	else
-		free_netdev(opts->net);
 	kfree(opts->ncm_interf_group);
 	kfree(opts);
 }
@@ -1718,12 +1718,6 @@ static struct usb_function_instance *ncm_alloc_inst(void)
 
 	mutex_init(&opts->lock);
 	opts->func_inst.free_func_inst = ncm_free_inst;
-	opts->net = gether_setup_default();
-	if (IS_ERR(opts->net)) {
-		struct net_device *net = opts->net;
-		kfree(opts);
-		return ERR_CAST(net);
-	}
 	INIT_LIST_HEAD(&opts->ncm_os_desc.ext_prop);
 
 	descs[0] = &opts->ncm_os_desc;

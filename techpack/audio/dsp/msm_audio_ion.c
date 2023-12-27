@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2013-2020, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2019, 2020, The Linux Foundation. All rights reserved.
+ *
  * Copyright (c) 2023, Qualcomm Innovation Center, Inc. All rights reserved.
  */
 
@@ -153,7 +154,6 @@ static int msm_audio_dma_buf_unmap(struct dma_buf *dma_buf)
 	 * should be explicitly acquired to avoid race condition
 	 * on adding elements to the list.
 	 */
-
 	list_for_each_safe(ptr, next,
 			    &(msm_audio_ion_data.alloc_list)) {
 
@@ -177,7 +177,6 @@ static int msm_audio_dma_buf_unmap(struct dma_buf *dma_buf)
 			break;
 		}
 	}
-	mutex_unlock(&(msm_audio_ion_data.list_mutex));
 
 	if (!found) {
 		dev_err(cb_dev,
@@ -281,7 +280,6 @@ static int msm_audio_ion_unmap_kernel(struct dma_buf *dma_buf)
 	 * TBD: remove the below section once new API
 	 * for unmapping kernel virtual address is available.
 	 */
-
 	list_for_each_entry(alloc_data, &(msm_audio_ion_data.alloc_list),
 			    list) {
 		if (alloc_data->dma_buf == dma_buf) {
@@ -289,7 +287,6 @@ static int msm_audio_ion_unmap_kernel(struct dma_buf *dma_buf)
 			break;
 		}
 	}
-	mutex_unlock(&(msm_audio_ion_data.list_mutex));
 
 	if (!vaddr) {
 		dev_err(cb_dev,
@@ -532,11 +529,11 @@ int msm_audio_ion_free(struct dma_buf *dma_buf)
 		pr_err("%s: dma_buf invalid\n", __func__);
 		return -EINVAL;
 	}
-    
+
 	mutex_lock(&(msm_audio_ion_data.list_mutex));
 	ret = msm_audio_ion_unmap_kernel(dma_buf);
 	if (ret) {
-             mutex_unlock(&(msm_audio_ion_data.list_mutex));
+		mutex_unlock(&(msm_audio_ion_data.list_mutex));
 		return ret;
 	}
 

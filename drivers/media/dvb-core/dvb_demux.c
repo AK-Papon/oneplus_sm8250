@@ -529,13 +529,23 @@ static inline int dvb_dmx_swfilter_payload(struct dvb_demux_feed *feed,
 	p = 188 - count;
 
 	cc = buf[3] & 0x0f;
-	ccok = ((feed->cc + 1) & 0x0f) == cc;
-	if (!ccok) {
-		set_buf_flags(feed, DMX_BUFFER_FLAG_DISCONTINUITY_DETECTED);
-		dprintk_sect_loss("missed packet: %d instead of %d!\n",
-				  cc, (feed->cc + 1) & 0x0f);
-	}
+	if (feed->first_cc)
+		ccok = 1;
+	else
+		ccok = ((feed->cc + 1) & 0x0f) == cc;
+
+	feed->first_cc = 0;
 	feed->cc = cc;
+
+	/* PUSI ? */
+	if (buf[1] & 0x40) {
+		dvb_dmx_check_pes_end(feed);
+		feed->pusi_seen = 1;
+		feed->peslen = 0;
+		feed->pes_tei_counter = 0;
+		feed->pes_cont_err_counter = 0;
+		feed->pes_ts_packets_num = 0;
+	}
 
 	if (feed->pusi_seen == 0)
 		return 0;
@@ -751,7 +761,16 @@ static int dvb_dmx_swfilter_section_one_packet(struct dvb_demux_feed *feed,
 	p = 188 - count;	/* payload start */
 
 	cc = buf[3] & 0x0f;
-	ccok = ((feed->cc + 1) & 0x0f) == cc;
+	if (feed->first_cc)
+		ccok = 1;
+	else
+		ccok = ((feed->cc + 1) & 0x0f) == cc;
+
+	/* discard TS packets holding sections with TEI bit set */
+	if (buf[1] & 0x80)
+		return -EINVAL;
+
+	feed->first_cc = 0;
 
 	if (buf[3] & 0x20) {
 		/* adaption field present, check for discontinuity_indicator */
