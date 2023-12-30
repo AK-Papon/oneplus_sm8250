@@ -565,10 +565,6 @@ typedef enum {
     /** Update vdev mac address */
     WMI_VDEV_UPDATE_MAC_ADDR_CMDID,
 
-    /** WMI Command to set status of CSA event from HOST */
-    WMI_CSA_EVENT_STATUS_INDICATION_CMDID,
-
-
     /* peer specific commands */
 
     /** create a peer */
