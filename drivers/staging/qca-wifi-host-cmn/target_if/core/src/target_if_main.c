@@ -88,7 +88,7 @@
 
 static struct target_if_ctx *g_target_if_ctx;
 
-struct target_if_ctx *target_if_get_ctx(void)
+struct target_if_ctx *target_if_get_ctx()
 {
 	return g_target_if_ctx;
 }

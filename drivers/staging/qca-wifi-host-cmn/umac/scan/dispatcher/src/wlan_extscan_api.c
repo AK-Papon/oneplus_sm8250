@@ -100,7 +100,7 @@ wlan_extscan_global_init(struct wlan_objmgr_psoc *psoc,
 }
 
 QDF_STATUS
-wlan_extscan_global_deinit(void)
+wlan_extscan_global_deinit()
 {
 	return QDF_STATUS_SUCCESS;
 }
