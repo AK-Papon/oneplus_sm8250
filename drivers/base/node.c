@@ -70,9 +70,7 @@ static ssize_t node_read_meminfo(struct device *dev,
 	unsigned long sreclaimable, sunreclaimable;
 
 	si_meminfo_node(&i, nid);
-	sreclaimable = node_page_state(pgdat, NR_SLAB_RECLAIMABLE);
-	sunreclaimable = node_page_state(pgdat, NR_SLAB_UNRECLAIMABLE);
-	n = sysfs_emit(buf,
+	n = sprintf(buf,
 		       "Node %d MemTotal:       %8lu kB\n"
 		       "Node %d MemFree:        %8lu kB\n"
 		       "Node %d MemUsed:        %8lu kB\n"

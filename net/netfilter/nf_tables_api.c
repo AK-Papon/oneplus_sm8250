@@ -932,6 +932,9 @@ static int nf_tables_newtable(struct net *net, struct sock *nlsk,
 	struct nft_ctx ctx;
 	int err;
 
+	if (!nft_supported_family(family))
+		return -EOPNOTSUPP;
+
 	lockdep_assert_held(&nft_net->commit_mutex);
 	attr = nla[NFTA_TABLE_NAME];
 	table = nft_table_lookup(net, attr, family, genmask);
@@ -3861,7 +3864,7 @@ void nf_tables_activate_set(const struct nft_ctx *ctx, struct nft_set *set)
 	if (nft_set_is_anonymous(set))
 		nft_clear(ctx->net, set);
 
-	nft_use_inc_restore(&set->use);
+	set->use++;
 }
 EXPORT_SYMBOL_GPL(nf_tables_activate_set);
 
@@ -3883,7 +3886,7 @@ void nf_tables_deactivate_set(const struct nft_ctx *ctx, struct nft_set *set,
 		if (nft_set_is_anonymous(set))
 			nft_deactivate_next(ctx->net, set);
 
-		nft_use_dec(&set->use);
+		set->use--;
 		return;
 	case NFT_TRANS_ABORT:
 	case NFT_TRANS_RELEASE:
@@ -4704,9 +4707,6 @@ err3:
 	if (nla[NFTA_SET_ELEM_DATA] != NULL)
 		nft_data_release(&elem.data.val, desc.type);
 err2:
-	if (obj)
-		nft_use_dec_restore(&obj->use);
-
 	nft_data_release(&elem.key.val, NFT_DATA_VALUE);
 err1:
 	return err;

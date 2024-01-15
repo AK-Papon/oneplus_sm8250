@@ -633,7 +633,6 @@ nfulnl_log_packet(struct net *net,
 	const struct nfnl_ct_hook *nfnl_ct = NULL;
 	enum ip_conntrack_info ctinfo = 0;
 	struct nf_conn *ct = NULL;
-	enum ip_conntrack_info ctinfo;
 
 	if (li_user && li_user->type == NF_LOG_TYPE_ULOG)
 		li = li_user;
