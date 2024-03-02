@@ -15577,7 +15577,6 @@ static ssize_t wlan_hdd_state_ctrl_param_write(struct file *filp,
 		//Add for wifi switch monitor
 		wlan_driver_send_uevent("TURN_ON");
 		#endif /* OPLUS_FEATURE_WIFI_DCS_SWITCH */
-		turning_on = true;
 	}
 
 	if (strncmp(buf, wlan_on_str, strlen(wlan_on_str)) != 0) {
